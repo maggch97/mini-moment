@@ -1,0 +1,181 @@
+body {
+    background-color: #f0f0f0;
+    overflow: auto;
+    margin: 0px;
+}
+
+/* Define button style */
+.button {
+    background-color: #f1f1f1;
+    border: 1px solid #ccc;
+    color: #333;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Hover effect */
+.button:hover {
+    background-color: #ccc;
+    border-color: #999;
+}
+
+/* Hover effect */
+.button:hover {
+    background-color: #ccc;
+    border-color: #999;
+}
+
+.button:active {
+    background-color: #999;
+    /* Even darker grey */
+    border-color: #666;
+    /* Dark grey for border */
+}
+
+.page {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 0px auto !important;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pannel {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto 0px auto;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.search-bar input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.post-content-input {
+    width: 80%;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    resize: none;
+    height: 7em;
+
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow-y: scroll;
+    height: calc(100vh - 83px);
+    scrollbar-width: none;
+    /* For Firefox */
+    -ms-overflow-style: none;
+    /* For Internet Explorer and Edge */
+    box-sizing: border-box;
+    /* Ensure padding and border are included in width */
+}
+
+.container::-webkit-scrollbar {
+    width: 0px;
+    /* For Chrome, Safari, and Opera */
+}
+
+.tweet {
+    width: 100%;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: #fff;
+    box-sizing: border-box;
+    /* Ensure padding and border are included in width */
+}
+
+.images img:not(.fullscreen) {
+    width: 30%;
+    height: 100px;
+}
+
+.images video:not(.fullscreen) {
+    width: 30%;
+    height: 100px;
+}
+
+.images img {
+    padding: 1px;
+    object-fit: contain;
+    cursor: pointer;
+}
+
+.tweet .content {
+    /* margin-top: 20px; */
+}
+
+.tweet .timestamp {
+    font-size: 0.8em;
+    color: #777;
+}
+.tweet .comment{
+    font-size: 0.8em;
+    margin: 1px 5px;
+    color: #333;
+}
+
+.tweet .comment-author{
+    font-size: 0.8em;
+}
+
+.tweet .sub-comment{
+    font-size: 0.8em;
+    margin: 1px 20px;
+    color: #333;
+}
+
+.fullscreen {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    object-fit: contain;
+    background-color: black;
+}
+
+.content-text {
+    margin: 0px;
+}
+
+.timestamp-text {
+    margin-bottom: 0px;
+}
+
+.timer {
+    margin: 5px 0px;
+}
+

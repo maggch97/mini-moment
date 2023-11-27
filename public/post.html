@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="./script/hyperlist.js"></script>
+    <script src="./script/crypto-js.min.js"></script>
+    <script type="module" src="./script/constant.js"></script>
+    <script src="./script/script.js"></script>
+</head>
+
+<body>
+    <div class="post-content-div page">
+        <textarea id="post-content-input" class="post-content-input" type="text" placeholder="" oninput=""></textarea>
+        <div class="controls">
+            <button class="button" onclick="pickAndUploadSingleFile()">Upload Files</button>
+            <button class="button" onclick="PostNormalMomentClicked()">Post</button>
+        </div>
+
+        <div class="images" style="width: 100%;"></div>
+    </div>
+
+    <div class="container"></div>
+
+    <script>
+        const uploadedAttachmentsDiv = document.querySelector('.images');
+        const postContentInput = document.getElementById('post-content-input');
+        postContentInput.value = getSavedDraft();
+        postContentInput.oninput = () => {
+            saveDraft(postContentInput.value);
+        }
+        const attachments = [];
+        function renderAttachments() {
+            uploadedAttachmentsDiv.innerHTML = '';
+            attachments.forEach(attachment => {
+                const element = createAttachmentElement(attachment);
+                uploadedAttachmentsDiv.appendChild(element);
+            });
+        }
+        function pickAndUploadSingleFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = false;
+            input.onchange = e => {
+                const files = e.target.files;
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        const fileExtension = file.name.split('.').pop().toLowerCase();
+                        const data = {
+                            extension: fileExtension,
+                            data: reader.result
+                        }
+                        console.log(data)
+                        fetch('/api/uploadFile?password=' + getLocalPassword(), {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        }).then(res => res.json()).then(data => {
+                            attachments.push({
+                                fileUrl: data.fileUrl,
+                                type: 'UNKNOWN'
+                            });
+                            renderAttachments();
+                        });
+                    };
+                }
+            }
+            input.click();
+        }
+
+        async function PostNormalMomentClicked() {
+            const content = document.getElementById('post-content-input').value;
+            const location = ''
+            const localId = uuidv4()
+            const type = PostType.NORMAL
+            const replyToId = ''
+            const parentPostId = ''
+            await API.AddPost(localId, content, location, type, replyToId, parentPostId, attachments)
+            saveDraft('')
+            window.location.href = '/'
+        }
+    </script>
+</body>
+
+</html>

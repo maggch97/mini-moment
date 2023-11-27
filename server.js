@@ -1,19 +1,23 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const https = require('https');
+
 const port = 3000;
 const dataFolder = './data/';
+const uploadFilesFolder = './public/files/upload/';
 const dbFile = dataFolder + 'moments.db';
 const passwordFile = dataFolder + 'password';
 
 // Create Express app
 const app = express();
-app.use(bodyParser.json()); // for parsing application/json
 app.use(express.static('public'));  // Serve static files from public directory
 app.use(checkPassword); // Check password for all requests
+app.use(bodyParser.json({ limit: '20mb' })); // Adjust '10mb' to your requirements
 
 // Create data folder if not exist
 const fs = require('fs');
+const { randomUUID } = require('crypto');
 if (!fs.existsSync(dataFolder)) {
     fs.mkdirSync(dataFolder);
 }
@@ -42,8 +46,9 @@ CREATE TABLE IF NOT EXISTS posts (
   attachments TEXT,
   replyToId TEXT,
   parentPostId TEXT,
+  comments TEXT,
   source INTEGER DEFAULT 0,
-  type INTEGER DEFAULT 0,
+  type INTEGER DEFAULT 0
 )`;
 db.run(createTable);
 
@@ -90,15 +95,16 @@ function checkPassword(req, res, next) {
 app.post('/api/addPost', (req, res) => {
     const { localId, content, location, type, replyToId, parentPostId, attachments } = req.body;
     // id is timestamp + localId
-    const id = Date.now() + localId;
+    const id = Date.now() + '-' + localId;
     const createTime = Date.now();
     db.run('INSERT INTO posts (id, content, location, type, replyToId, parentPostId, createTime,attachments ) VALUES (?, ?, ?, ?,?,?,?,?)',
         [id, content, location, type, replyToId, parentPostId, createTime, attachments],
         function (err) {
             if (err) {
+                res.status(500).json({ error: err.message });
                 return console.error(err.message);
             }
-            res.send(`A row has been inserted with rowid ${this.lastID}`);
+            res.json({ id });
         });
 });
 
@@ -114,12 +120,49 @@ app.get('/api/getPosts', (req, res) => {
         if (err) {
             throw err;
         }
+        rows.sort((a, b) => b.createTime - a.createTime);
         res.json(rows);
     });
 });
 
+app.post('/adhoc/api/soul', (req, res) => {
+    const { localId, content, location, type, replyToId, parentPostId, attachments, comments, createTime } = req.body;
+    db.run('INSERT INTO posts (id, content, location, type, replyToId, parentPostId, createTime,attachments,comments ) VALUES (?, ?, ?, ?,?,?,?,?,?)',
+        [localId, content, location, type, replyToId, parentPostId, createTime, attachments, comments],
+        function (err) {
+            if (err) {
+                res.status(500).json({ error: err.message });
+                return console.error(err.message);
+            }
+            res.json({ localId });
+        });
+});
+
+
+// upload files
+app.post('/api/uploadFile', (req, res) => {
+    const { extension, data } = req.body;
+    const fileName = Date.now() + '-' + randomUUID() + '.' + extension;
+    const filePath = uploadFilesFolder + fileName;
+    const base64Data = data.split(';base64,').pop();
+    const dataBuffer = Buffer.from(base64Data, 'base64');
+    fs.writeFile(filePath, dataBuffer, (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+            return console.error(err.message);
+        }
+        res.json({ fileUrl: './files/upload/' + fileName });
+    });
+}
+);
+
+const certificate = fs.readFileSync('./certificate.crt', 'utf8');
+const privateKey = fs.readFileSync('./private.pem', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+
 // Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3004;
+const server = https.createServer(credentials, app);
+server.listen(PORT, () => {
+    console.log(`HTTPS Server is running on port ${PORT}`);
 });

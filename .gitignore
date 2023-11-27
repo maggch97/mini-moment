@@ -1,2 +1,5 @@
 data/*
 node_modules/*
+public/soul.html
+private.pem
+certificate.crt
