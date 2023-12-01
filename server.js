@@ -80,7 +80,9 @@ class PostSource {
 
 // ------------------ Utils START ------------------
 function checkPassword(req, res, next) {
-    const { password } = req.query;
+    // const { password } = req.query;
+    // read password from header
+    const password = req.headers['x-password'];
     // check password for /api/*
     if (req.path.startsWith('/api/') && password !== userPassword) {
         res.status(401).send('Unauthorized');
@@ -110,12 +112,6 @@ app.post('/api/addPost', (req, res) => {
 
 // Endpoint to get all posts
 app.get('/api/getPosts', (req, res) => {
-    // check password
-    const { password } = req.query;
-    if (password !== userPassword) {
-        res.status(401).send('Unauthorized');
-        return;
-    }
     db.all('SELECT * FROM posts', [], (err, rows) => {
         if (err) {
             throw err;
@@ -155,6 +151,11 @@ app.post('/api/uploadFile', (req, res) => {
     });
 }
 );
+
+// download sqlite3 db file
+app.get('/api/downloadDb', (req, res) => {
+    res.download(dbFile);
+});
 
 const certificate = fs.readFileSync('./certificate.crt', 'utf8');
 const privateKey = fs.readFileSync('./private.pem', 'utf8');

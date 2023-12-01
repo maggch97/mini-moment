@@ -58,10 +58,11 @@
                             data: reader.result
                         }
                         console.log(data)
-                        fetch('/api/uploadFile?password=' + getLocalPassword(), {
+                        fetch('/api/uploadFile', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
+                                'x-password': getLocalPassword()
                             },
                             body: JSON.stringify(data)
                         }).then(res => res.json()).then(data => {

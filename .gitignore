@@ -3,3 +3,5 @@ node_modules/*
 public/soul.html
 private.pem
 certificate.crt
+*.db
+*.zip

@@ -33,10 +33,11 @@
 class API {
     static async AddPost(localId, content, location, type, replyToId, parentPostId, attachments) {
         attachments = JSON.stringify(attachments)
-        const res = await fetch('/api/addPost?password=' + getLocalPassword(), {
+        const res = await fetch('/api/addPost', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'x-password': getLocalPassword()
             },
             body: JSON.stringify({ localId, content, location, type, replyToId, parentPostId, attachments })
         });
@@ -44,7 +45,11 @@ class API {
     }
     static async GetPosts(password) {
         password = password || getLocalPassword()
-        const res = await fetch('/api/getPosts?password=' + password);
+        const res = await fetch('/api/getPosts', {
+            headers: {
+                'x-password': password
+            }
+        });
         const posts = await res.json();
         posts.forEach(post => {
             try {
