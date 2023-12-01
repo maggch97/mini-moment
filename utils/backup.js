@@ -13,7 +13,6 @@ const pipeline = promisify(stream.pipeline);
 // read first args
 const args = process.argv.slice(2);
 const password = args[0];
-// download https://localtest.2gether.video:3004/api/downloadDb to local disk
 
 async function downloadDb(dbName) {
     const res = await fetch('https://localtest.2gether.video:3004/api/downloadDb', {

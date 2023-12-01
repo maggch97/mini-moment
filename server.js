@@ -121,18 +121,18 @@ app.get('/api/getPosts', (req, res) => {
     });
 });
 
-app.post('/adhoc/api/soul', (req, res) => {
-    const { localId, content, location, type, replyToId, parentPostId, attachments, comments, createTime } = req.body;
-    db.run('INSERT INTO posts (id, content, location, type, replyToId, parentPostId, createTime,attachments,comments ) VALUES (?, ?, ?, ?,?,?,?,?,?)',
-        [localId, content, location, type, replyToId, parentPostId, createTime, attachments, comments],
-        function (err) {
-            if (err) {
-                res.status(500).json({ error: err.message });
-                return console.error(err.message);
-            }
-            res.json({ localId });
-        });
-});
+// app.post('/adhoc/api/soul', (req, res) => {
+//     const { localId, content, location, type, replyToId, parentPostId, attachments, comments, createTime } = req.body;
+//     db.run('INSERT INTO posts (id, content, location, type, replyToId, parentPostId, createTime,attachments,comments ) VALUES (?, ?, ?, ?,?,?,?,?,?)',
+//         [localId, content, location, type, replyToId, parentPostId, createTime, attachments, comments],
+//         function (err) {
+//             if (err) {
+//                 res.status(500).json({ error: err.message });
+//                 return console.error(err.message);
+//             }
+//             res.json({ localId });
+//         });
+// });
 
 
 // upload files
