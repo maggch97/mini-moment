@@ -97,7 +97,7 @@
         var styles = window.getComputedStyle(searchBar);
         var margin = parseFloat(styles['marginTop']) + parseFloat(styles['marginBottom']);
 
-        var searchBarHeight = searchBar.offsetHeight + margin+20;
+        var searchBarHeight = searchBar.offsetHeight + margin + 20;
         let fullData = [];
         let data = fullData;
         let todayHistory = [];
@@ -130,7 +130,7 @@
                         <p class="timestamp-text">Posted on: ${timestampToFormattedDate(element.createTime)} ${element.position ? `at ${element.position}` : ""}</p>
                     </div>
                     <div>
-                        ${element.comments? element.comments.map(comment => {
+                        ${element.comments ? element.comments.map(comment => {
                         const authorNickName = comment.authorNickName
                         const content = comment.content
                         return `<p  class="comment"><em class="comment-author"> ${authorNickName}</em>: ${content}</p>` +
@@ -139,11 +139,11 @@
                                 const content = subComment.content
                                 return `<p class="sub-comment"><em class="comment-author">${authorNickName}</em>: ${content}</p>`
                             })?.join('\n')
-                    })?.join('\n'): ""}
+                    })?.join('\n') : ""}
                     </div>
                 `;
                     // XSS
-                    tweet.querySelector('.content').querySelector('p').innerHTML = element.content.replaceAll('<','[').replaceAll('>',']').replaceAll('\n', '<br>').replaceAll('innerTag', 'a');
+                    tweet.querySelector('.content').querySelector('p').innerHTML = element.content.replaceAll('<', '[').replaceAll('>', ']').replaceAll('\n', '<br>').replaceAll('innerTag', 'a');
                     [...tweet.querySelector('.content').querySelector('p').querySelectorAll('a')].forEach(a => {
                         a.href = "#";
                         a.onclick = () => {
@@ -168,13 +168,14 @@
             };
 
         }
-        var list = new HyperList(container, generateConfig());
+        var list = null;
 
         async function fetchPosts(password) {
             fullData = await API.GetPosts(password);
-            if(password){
+            if (password) {
                 saveLocalPassword(password)
             }
+            document.querySelector('#search-input').value = "";
             data = fullData;
             list = new HyperList(container, generateConfig());
             onSearch();
@@ -185,11 +186,7 @@
             let keywords = document.querySelector('#search-input').value;
             if (fullData.length == 0) {
                 updatePassword(keywords)
-                if (fullData.length != 0) {
-                    keywords = ""
-                    document.querySelector('#search-input').value = ""
-                    console.log(fullData)
-                }
+                return;
             }
 
             data = fullData.filter(x => x.content.indexOf(keywords) != -1
@@ -202,8 +199,8 @@
             }
             list.refresh(container, generateConfig());
         }
-        function updatePassword(password) {
-            fetchPosts(password)
+        async function updatePassword(password) {
+            await fetchPosts(password)
         }
 
         window.addEventListener('resize', onSearch)

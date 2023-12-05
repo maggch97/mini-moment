@@ -79,15 +79,42 @@ class PostSource {
 
 
 // ------------------ Utils START ------------------
-function checkPassword(req, res, next) {
-    // const { password } = req.query;
-    // read password from header
-    const password = req.headers['x-password'];
-    // check password for /api/*
-    if (req.path.startsWith('/api/') && password !== userPassword) {
+let checkPasswordLock = false;
+async function waitAndGetCheckPasswordLock() {
+    while (checkPasswordLock) {
+        await new Promise((res) => {
+            setTimeout(() => {
+                res();
+            }, 100);
+        });
+    }
+    checkPasswordLock = true;
+}
+
+async function checkPassword(req, res, next) {
+    try {
+        await waitAndGetCheckPasswordLock();
+        // const { password } = req.query;
+        // read password from header
+        const password = req.headers['x-password'];
+        // check password for /api/*
+        if (req.path.startsWith('/api/') && password !== userPassword) {
+            // delay 1 seconds
+            await new Promise((res) => {
+                setTimeout(() => {
+                    res();
+                }, 1000);
+            });
+            res.status(401).send('Unauthorized');
+            return;
+        }
+    } catch {
         res.status(401).send('Unauthorized');
         return;
+    } finally {
+        checkPasswordLock = false;
     }
+
     next();
 }
 
