@@ -68,7 +68,7 @@
         function isTodayHistory(timestamp) {
             const date = new Date(timestamp);
             const now = new Date()
-            if (date.getMonth() == now.getMonth() && date.getDate() == now.getDate()) {
+            if (date.getMonth() == now.getMonth() && date.getDate() == now.getDate() && date.getFullYear() != now.getFullYear()) {
                 return true;
             }
         }
@@ -168,7 +168,7 @@
             };
 
         }
-        var list = undefined
+        var list = new HyperList(container, generateConfig());
 
         async function fetchPosts(password) {
             fullData = await API.GetPosts(password);
@@ -177,6 +177,7 @@
             }
             data = fullData;
             list = new HyperList(container, generateConfig());
+            onSearch();
         }
         fetchPosts()
         // Initialize a new Hyperlist instance with the configuration
