@@ -16,8 +16,15 @@
     <div class="post-content-div page">
         <textarea id="post-content-input" class="post-content-input" type="text" placeholder="" oninput=""></textarea>
         <div class="controls">
+            <select id="post-type-select" class="post-type-select">
+                <option value="NORMAL">帖子</option>
+                <option value="PLAN">计划</option>
+                <option value="EVENT">周期性提醒事件</option>
+            </select>
             <button class="button" onclick="pickAndUploadSingleFile()">Upload Files</button>
             <button class="button" onclick="PostNormalMomentClicked()">Post</button>
+            
+
         </div>
 
         <div class="images" style="width: 100%;"></div>
