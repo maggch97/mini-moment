@@ -70,7 +70,7 @@ class API {
 
 function getAttachmentType(attachment) {
     if (attachment.type == 'UNKNOWN') {
-        const extension = attachment.fileUrl.split('.').pop()
+        const extension = attachment.fileUrl.split('.').pop().toLowerCase()
         if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension)) {
             return 'IMAGE'
         } else if (['mp4', 'mov', 'avi'].includes(extension)) {
@@ -115,6 +115,7 @@ function createAttachmentElement(attachment) {
         fileElement.href = attachment.fileUrl
         fileElement.innerText = attachment.fileUrl.split('/').pop()
         fileElement.target = '_blank'
+        fileElement.style = 'display: block; margin-top: 10px; border: 1px solid #ccc; padding: 10px; text-decoration: none; color: #333;'
         return fileElement
     }
 }

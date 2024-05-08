@@ -117,6 +117,9 @@ body {
 .images video:not(.fullscreen) {
     width: 30%;
     height: 100px;
+    padding: 1px;
+    object-fit: contain;
+    cursor: pointer;
 }
 
 .images img {

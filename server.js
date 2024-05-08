@@ -2,6 +2,8 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
 const https = require('https');
+const multer = require('multer');
+const path = require('path');
 
 const port = 3000;
 const dataFolder = './data/';
@@ -35,6 +37,24 @@ const db = new sqlite3.Database(dbFile, (err) => {
     console.log('Connected to the SQLite database.');
 });
 
+
+// Create the folder if it doesn't exist
+if (!fs.existsSync(uploadFilesFolder)) {
+    fs.mkdirSync(uploadFilesFolder, { recursive: true });
+}
+
+// Configure multer for file storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadFilesFolder);
+    },
+    filename: (req, file, cb) => {
+        const extension = path.extname(file.originalname);
+        const fileName = Date.now() + '-' + randomUUID() + extension;
+        cb(null, fileName);
+    }
+});
+const upload = multer({ storage: storage });
 
 // Create table
 const createTable = `
@@ -162,35 +182,40 @@ app.get('/api/getPosts', (req, res) => {
 // });
 
 
-// upload files
-app.post('/api/uploadFile', (req, res) => {
-    const { extension, data } = req.body;
-    const fileName = Date.now() + '-' + randomUUID() + '.' + extension;
-    const filePath = uploadFilesFolder + fileName;
-    const base64Data = data.split(';base64,').pop();
-    const dataBuffer = Buffer.from(base64Data, 'base64');
-    fs.writeFile(filePath, dataBuffer, (err) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return console.error(err.message);
-        }
-        res.json({ fileUrl: './files/upload/' + fileName });
-    });
-}
-);
+// Handle file upload
+app.post('/api/uploadFile', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const fileUrl = './files/upload/' + req.file.filename;
+    res.json({ fileUrl: fileUrl });
+});
+
 
 // download sqlite3 db file
 app.get('/api/downloadDb', (req, res) => {
     res.download(dbFile);
 });
 
-const certificate = fs.readFileSync('./certificate.crt', 'utf8');
-const privateKey = fs.readFileSync('./private.pem', 'utf8');
-const credentials = { key: privateKey, cert: certificate };
+
 
 // Start server
+const debug = process.argv.includes('--debug');
 const PORT = process.env.PORT || 3004;
-const server = https.createServer(credentials, app);
-server.listen(PORT, () => {
-    console.log(`HTTPS Server is running on port ${PORT}`);
-});
+
+if (debug) {
+    console.log('Running in debug mode');
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}else{
+    const certificate = fs.readFileSync('./certificate.crt', 'utf8');
+    const privateKey = fs.readFileSync('./private.pem', 'utf8');
+    const credentials = { key: privateKey, cert: certificate };
+    
+    const server = https.createServer(credentials, app);
+    server.listen(PORT, () => {
+        console.log(`HTTPS Server is running on port ${PORT}`);
+    });
+}
