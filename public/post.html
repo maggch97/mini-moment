@@ -77,15 +77,23 @@
             const input = document.createElement('input');
             input.type = 'file';
             input.multiple = false;
+            input.accept = 'image/*,video/*,audio/*,.pdf,.doc,.docx,.txt';
+            
             input.onchange = e => {
                 const file = e.target.files[0];
                 if (!file) return;
+
+                updateUploadStatus(file.name, '准备上传...');
 
                 const formData = new FormData();
                 formData.append('file', file);
 
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', '/api/uploadFile', true);
+
+                xhr.upload.onloadstart = () => {
+                    updateUploadStatus(file.name, '开始上传...');
+                };
 
                 xhr.upload.onprogress = (event) => {
                     if (event.lengthComputable) {
@@ -96,13 +104,17 @@
                 };
 
                 xhr.onload = () => {
+                    const statusIndex = uploadStatus.findIndex(item => item.filename === file.name);
+                    if (statusIndex !== -1) {
+                        uploadStatus.splice(statusIndex, 1);
+                    }
+                    
                     if (xhr.status === 200) {
                         const response = JSON.parse(xhr.responseText);
                         attachments.push({
                             fileUrl: response.fileUrl,
                             type: 'UNKNOWN'
                         });
-                        updateUploadStatus(file.name, 'Done');
                         renderAttachments();
                     } else {
                         updateUploadStatus(file.name, 'Failed');
@@ -115,10 +127,19 @@
                     console.error('Upload error:', xhr.statusText);
                 };
 
+                xhr.ontimeout = () => {
+                    updateUploadStatus(file.name, 'Timeout');
+                    console.error('Upload timeout');
+                };
+
+                xhr.timeout = 300000;
                 xhr.setRequestHeader('x-password', getLocalPassword());
                 xhr.send(formData);
             };
-            input.click();
+            
+            setTimeout(() => {
+                input.click();
+            }, 100);
         }
 
         async function PostNormalMomentClicked() {
