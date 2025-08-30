@@ -21,7 +21,8 @@
                 <option value="PLAN">计划</option>
                 <option value="EVENT">周期性提醒事件</option>
             </select> -->
-            <button class="button" onclick="pickAndUploadSingleFile()">Upload Files</button>
+            <button class="button" onclick="pickAndUploadSingleFile()" 
+                    ontouchstart="" ontouchend="">Upload Files</button>
             <button class="button" onclick="PostNormalMomentClicked()">Post</button>
 
 
@@ -78,10 +79,18 @@
             input.type = 'file';
             input.multiple = false;
             input.accept = 'image/*,video/*,audio/*,.pdf,.doc,.docx,.txt';
+            input.style.position = 'absolute';
+            input.style.left = '-9999px';
+            input.style.opacity = '0';
             
-            input.onchange = e => {
+            document.body.appendChild(input);
+            
+            input.addEventListener('change', e => {
                 const file = e.target.files[0];
-                if (!file) return;
+                if (!file) {
+                    document.body.removeChild(input);
+                    return;
+                }
 
                 updateUploadStatus(file.name, '准备上传...');
 
@@ -104,6 +113,7 @@
                 };
 
                 xhr.onload = () => {
+                    document.body.removeChild(input);
                     const statusIndex = uploadStatus.findIndex(item => item.filename === file.name);
                     if (statusIndex !== -1) {
                         uploadStatus.splice(statusIndex, 1);
@@ -123,11 +133,13 @@
                 };
 
                 xhr.onerror = () => {
+                    document.body.removeChild(input);
                     updateUploadStatus(file.name, 'Failed');
                     console.error('Upload error:', xhr.statusText);
                 };
 
                 xhr.ontimeout = () => {
+                    document.body.removeChild(input);
                     updateUploadStatus(file.name, 'Timeout');
                     console.error('Upload timeout');
                 };
@@ -135,11 +147,9 @@
                 xhr.timeout = 300000;
                 xhr.setRequestHeader('x-password', getLocalPassword());
                 xhr.send(formData);
-            };
+            });
             
-            setTimeout(() => {
-                input.click();
-            }, 100);
+            input.click();
         }
 
         async function PostNormalMomentClicked() {
