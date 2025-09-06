@@ -210,8 +210,8 @@ if (debug) {
         console.log(`Server is running on port ${PORT}`);
     });
 }else{
-    const certificate = fs.readFileSync('./certificate.crt', 'utf8');
-    const privateKey = fs.readFileSync('./private.pem', 'utf8');
+    const certificate = fs.readFileSync('/etc/letsencrypt/live/panghair.com/fullchain.pem', 'utf8');
+    const privateKey = fs.readFileSync('/etc/letsencrypt/live/panghair.com/privkey.pem', 'utf8');
     const credentials = { key: privateKey, cert: certificate };
     
     const server = https.createServer(credentials, app);
